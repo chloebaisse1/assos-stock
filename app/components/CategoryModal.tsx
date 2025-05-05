@@ -23,7 +23,7 @@ const CategoryModal: React.FC<Props> = ({
 }) => {
   return (
     <div>
-      <dialog id="my_modal_3" className="modal">
+      <dialog id="category-modal" className="modal">
         <div className="modal-box">
           <form method="dialog">
             <button
