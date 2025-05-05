@@ -1,14 +1,26 @@
-import { UserButton } from "@clerk/nextjs";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { ListTree, Menu, PackagePlus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { checkAndAddAssociation } from "../actions";
 
 const Navbar = () => {
+  const { user } = useUser();
+
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [{ href: "/category", label: "Catégories", icon: ListTree }];
+
+  useEffect(() => {
+    if (user?.primaryEmailAddress?.emailAddress && user.fullName) {
+      checkAndAddAssociation(
+        user?.primaryEmailAddress?.emailAddress,
+        user.fullName
+      );
+    }
+  }, [user]);
 
   const renderLinks = (baseClass: string) => (
     <>
