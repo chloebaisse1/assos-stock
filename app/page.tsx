@@ -1,7 +1,10 @@
+"use client";
+import Wrapper from "./components/Wrapper";
+
 export default function Home() {
   return (
-    <div>
+    <Wrapper>
       <button className="btn btn-sm">test</button>
-    </div>
+    </Wrapper>
   );
 }
