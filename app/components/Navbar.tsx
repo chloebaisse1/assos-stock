@@ -1,3 +1,4 @@
+import { UserButton } from "@clerk/nextjs";
 import { ListTree, Menu, PackagePlus, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -47,6 +48,7 @@ const Navbar = () => {
 
         <div className="hidden space-x-2 sm:flex items-center">
           {renderLinks("btn")}
+          <UserButton />
         </div>
       </div>
 
@@ -56,6 +58,7 @@ const Navbar = () => {
         }`}
       >
         <div className="flex justify-between">
+          <UserButton />
           <button
             className="btn w-fit sm:hidden btn-sm"
             onClick={() => setMenuOpen(!menuOpen)}
