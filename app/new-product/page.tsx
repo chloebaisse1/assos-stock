@@ -8,6 +8,7 @@ import { useUser } from "@clerk/nextjs";
 import { Category } from "@prisma/client";
 import { FormDataType } from "@/type";
 import { readCategories } from "../actions";
+import { FileImage } from "lucide-react";
 
 const page = () => {
   const { user } = useUser();
@@ -128,7 +129,20 @@ const page = () => {
                 onChange={handleFileChange}
               />
 
-              <button className="btn btn-secondary">Créer le produit</button>
+              <button className="btn btn-primary">Créer le produit</button>
+            </div>
+
+            <div className="md:ml-4 md:w-[300px] mt-4 md:mt-0 border-2 border-primary md:h-[300px] p-5 flex justify-center items-center rounded-3xl">
+              {previewUrl && previewUrl !== "" ? (
+                <div></div>
+              ) : (
+                <div className="wiggle-animation">
+                  <FileImage
+                    strokeWidth={1}
+                    className="w-10 h-10 text-primary"
+                  />
+                </div>
+              )}
             </div>
           </section>
         </div>
