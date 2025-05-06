@@ -1,5 +1,5 @@
 import { UserButton, useUser } from "@clerk/nextjs";
-import { ListTree, Menu, PackagePlus, X } from "lucide-react";
+import { ListTree, Menu, PackagePlus, ShoppingBasket, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -11,7 +11,10 @@ const Navbar = () => {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navLinks = [{ href: "/category", label: "Catégories", icon: ListTree }];
+  const navLinks = [
+    { href: "/new-product", label: "Nouveau produit", icon: ShoppingBasket },
+    { href: "/category", label: "Catégories", icon: ListTree },
+  ];
 
   useEffect(() => {
     if (user?.primaryEmailAddress?.emailAddress && user.fullName) {
