@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { existsSync, mkdir } from "fs";
+
+import { existsSync } from "fs";
+import { mkdir } from "fs/promises";
 
 import { NextRequest, NextResponse } from "next/server";
 import { join } from "path";
