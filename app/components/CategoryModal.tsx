@@ -23,7 +23,7 @@ const CategoryModal: React.FC<Props> = ({
 }) => {
   return (
     <div>
-      <dialog id="category-modal" className="modal">
+      <dialog id="category_modal" className="modal">
         <div className="modal-box">
           <form method="dialog">
             <button
@@ -33,7 +33,7 @@ const CategoryModal: React.FC<Props> = ({
               ✕
             </button>
           </form>
-          <h3 className="font-bold text-lg">
+          <h3 className="font-bold text-lg mb-4">
             {editMode ? "Modifier la catégorie" : "Créer une catégorie"}
           </h3>
           <input
@@ -52,7 +52,11 @@ const CategoryModal: React.FC<Props> = ({
             className="input input-bordered w-full mb-4"
           />
 
-          <button className="btn btn-secondary" onClick={onSubmit}>
+          <button
+            className="btn btn-secondary"
+            onClick={onSubmit}
+            disabled={loading}
+          >
             {loading
               ? editMode
                 ? "Modifier"
