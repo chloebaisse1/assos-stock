@@ -1,5 +1,5 @@
 /* eslint-disable react/no-unescaped-entities */
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import { useEffect, useState } from "react";
@@ -7,12 +7,16 @@ import Wrapper from "../components/Wrapper";
 import { useUser } from "@clerk/nextjs";
 import { Category } from "@prisma/client";
 import { FormDataType } from "@/type";
-import { readCategories } from "../actions";
+import { createProduct, readCategories } from "../actions";
 import { FileImage } from "lucide-react";
+import ProductImage from "../components/ProductImage";
+import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const page = () => {
   const { user } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress as string;
+  const router = useRouter();
 
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -23,6 +27,7 @@ const page = () => {
     price: 0,
     categoryId: "",
     unit: "",
+    imageUrl: "",
   });
 
   const handleChange = (
@@ -58,6 +63,33 @@ const page = () => {
     }
   };
 
+  const handleSubmit = async () => {
+    if (!file) {
+      toast.error("Veuillez sélectionner une image pour le produit.");
+      return;
+    }
+    try {
+      const imageData = new FormData();
+      imageData.append("file", file);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: imageData,
+      });
+
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error("Erreur lors de l'upload du fichier.");
+      } else {
+        formData.imageUrl = data.path;
+        await createProduct(formData, email);
+        toast.success("Le produit a bien été créé.");
+        router.push("/products");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Il y a une erreur.");
+    }
+  };
   return (
     <Wrapper>
       <div className="flex justify-between items-center">
@@ -129,12 +161,21 @@ const page = () => {
                 onChange={handleFileChange}
               />
 
-              <button className="btn btn-primary">Créer le produit</button>
+              <button onClick={handleSubmit} className="btn btn-primary">
+                Créer le produit
+              </button>
             </div>
 
             <div className="md:ml-4 md:w-[300px] mt-4 md:mt-0 border-2 border-primary md:h-[300px] p-5 flex justify-center items-center rounded-3xl">
               {previewUrl && previewUrl !== "" ? (
-                <div></div>
+                <div>
+                  <ProductImage
+                    src={previewUrl}
+                    alt="preview"
+                    heightClass="h-40"
+                    widthClass="w-40"
+                  />
+                </div>
               ) : (
                 <div className="wiggle-animation">
                   <FileImage
