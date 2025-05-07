@@ -93,8 +93,8 @@ const page = () => {
   return (
     <Wrapper>
       <div className="flex justify-between items-center">
-        <div className="text-2xl font-bold mb-4">
-          <h1 className="p-3">Créer un produit</h1>
+        <div>
+          <h1 className="text-2xl font-bold mb-4">Créer un produit</h1>
           <section className="flex md:flex-row flex-col">
             <div className="space-y-4 md:w-[450px]">
               <input
