@@ -1,8 +1,9 @@
 import { Product } from "@/type";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { readProducts } from "../actions";
+import { readProducts, replenishStockWithTransaction } from "../actions";
 import ProductComponent from "./ProductComponent";
+import { toast } from "react-toastify";
 
 const Stock = () => {
   const { user } = useUser();
@@ -36,6 +37,32 @@ const Stock = () => {
     setSelectedProductId(productId);
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProductId || quantity <= 0) {
+      toast.error("Veuillez sélectionner un produit et une quantité valide.");
+      return;
+    }
+    try {
+      if (email) {
+        await replenishStockWithTransaction(selectedProductId, quantity, email);
+      }
+      toast.success("La quantité a bien été ajoutée au stock.");
+      fetchProducts();
+      setSelectedProductId("");
+      setQuantity(0);
+      setSelectedProduct(null);
+      const modal = document.getElementById(
+        "my_modal_stock"
+      ) as HTMLDialogElement;
+      if (modal) {
+        modal.close();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div>
       {/* You can open the modal using document.getElementById('ID').showModal() method */}
@@ -53,7 +80,7 @@ const Stock = () => {
             Ajoutez des quantités pour les produits disponibles.
           </p>
 
-          <form className="space-y-2">
+          <form className="space-y-2" onSubmit={handleSubmit}>
             <label className="block">Sélectionner un produit</label>
             <select
               value={selectedProductId}
@@ -70,6 +97,18 @@ const Stock = () => {
             </select>
 
             {selectedProduct && <ProductComponent product={selectedProduct} />}
+            <label className="block"> Quantité à ajouter</label>
+            <input
+              type="number"
+              placeholder="Quantité à ajouter"
+              value={quantity}
+              required
+              onChange={(e) => setQuantity(Number(e.target.value))}
+              className="input input-bordered w-full"
+            />
+            <button type="submit" className="btn btn-primary w-fit">
+              Ajouter au stock
+            </button>
           </form>
         </div>
       </dialog>
