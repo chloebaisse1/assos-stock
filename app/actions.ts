@@ -1,7 +1,7 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { FormDataType, Product } from "@/type";
+import { FormDataType, OrderItem, Product } from "@/type";
 import { Category } from "@prisma/client";
 
 export async function checkAndAddAssociation(email: string, name: string) {
@@ -331,6 +331,69 @@ export async function replenishStockWithTransaction(
         associationId: association.id,
       },
     });
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function deductStockWithTransaction(
+  orderItems: OrderItem[],
+  email: string
+) {
+  try {
+    if (!email) {
+      throw new Error("L'email est requis.");
+    }
+
+    const association = await getAssociation(email);
+    if (!association) {
+      throw new Error(" Aucune association trouvée avec cet email.");
+    }
+
+    for (const item of orderItems) {
+      const product = await prisma.product.findUnique({
+        where: { id: item.productId },
+      });
+      if (!product) {
+        throw new Error(`Le produit avec l'ID ${item.productId} introubable.`);
+      }
+
+      if (item.quantity <= 0) {
+        throw new Error("La quantité doit être supérieure à 0.");
+      }
+
+      if (product.quantity < item.quantity) {
+        throw new Error(
+          `Le produit ${product.name} n'a pas assez de stock. Demandé: ${item.quantity}, Dispo: ${product.quantity} / ${product.unit}`
+        );
+      }
+    }
+
+    await prisma.$transaction(async (tx) => {
+      for (const item of orderItems) {
+        await tx.product.update({
+          where: {
+            id: item.productId,
+            associationId: association.id,
+          },
+          data: {
+            quantity: {
+              decrement: item.quantity,
+            },
+          },
+        });
+        await prisma.transaction.create({
+          data: {
+            type: "OUT",
+            quantity: item.quantity,
+            productId: item.productId,
+            associationId: association.id,
+          },
+        });
+      }
+    });
+
+    return { success: true };
   } catch (error) {
     console.error(error);
   }

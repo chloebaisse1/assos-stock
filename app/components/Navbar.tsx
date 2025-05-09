@@ -1,5 +1,6 @@
 import { UserButton, useUser } from "@clerk/nextjs";
 import {
+  HandHeart,
   ListTree,
   Menu,
   PackagePlus,
@@ -23,6 +24,7 @@ const Navbar = () => {
     { href: "/products", label: "Produits", icon: ShoppingBasket },
     { href: "/new-product", label: "Nouveau produit", icon: PackagePlus },
     { href: "/category", label: "Catégories", icon: ListTree },
+    { href: "/give", label: "Dons", icon: HandHeart },
   ];
 
   useEffect(() => {
