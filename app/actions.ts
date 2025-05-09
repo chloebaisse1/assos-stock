@@ -382,7 +382,7 @@ export async function deductStockWithTransaction(
             },
           },
         });
-        await prisma.transaction.create({
+        await tx.transaction.create({
           data: {
             type: "OUT",
             quantity: item.quantity,
