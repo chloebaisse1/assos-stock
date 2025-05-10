@@ -1,0 +1,99 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+import { ChartData } from "@/type";
+import { useEffect, useState } from "react";
+import {
+  Bar,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  BarChart,
+  LabelList,
+  Cell,
+} from "recharts";
+import EmptyState from "./EmptyState";
+import { getProductCategoryDistribution } from "../actions";
+
+const CategoryChart = ({ email }: { email: string }) => {
+  const [data, setData] = useState<ChartData[]>([]);
+
+  const COLORS = {
+    default: "#c892bf",
+  };
+
+  const fetchStats = async () => {
+    try {
+      if (email) {
+        const data = await getProductCategoryDistribution(email);
+        if (data) {
+          setData(data);
+        }
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (email) fetchStats();
+  }, [email]);
+
+  const renderChart = (widthOverride?: string) => (
+    <ResponsiveContainer width="100%" height={350}>
+      <BarChart
+        data={data}
+        margin={{
+          top: 0,
+          right: 0,
+          left: 0,
+          bottom: 0,
+        }}
+        barCategoryGap={widthOverride ? 0 : "10"}
+      >
+        <XAxis
+          dataKey="name"
+          axisLine={false}
+          tickLine={false}
+          tick={{
+            fontSize: 15,
+            fill: "oklch(62.45% .278 3.836)",
+            fontWeight: "bold",
+          }}
+        />
+        <YAxis hide />
+        <Bar dataKey="value" barSize={200} radius={[8, 8, 0, 0]} />
+
+        <LabelList
+          fill="#793205"
+          dataKey="value"
+          position="insideRight"
+          style={{ fontSize: "20px", fontWeight: "bold" }}
+        />
+
+        {data.map((entry, index) => (
+          <Cell key={`cell-${index}`} fill={COLORS.default} cursor="default" />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
+
+  if (data.length == 0) {
+    return (
+      <div className="w-full border-2 border-base-200 mt-4 p-4 rounded-3xl">
+        <h2 className="5 catégories avec le plus de produits">
+          <EmptyState
+            message="Aucune catégorie pour le moment"
+            IconComponent="Group"
+          />
+        </h2>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full border-2 border-base-200 mt-4 p-4 rounded-3xl">
+      <h2 className="5 catégories avec le plus de produits">{renderChart()}</h2>
+    </div>
+  );
+};
+
+export default CategoryChart;

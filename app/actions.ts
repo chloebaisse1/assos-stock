@@ -509,3 +509,43 @@ export async function getProductOverviewStats(
     };
   }
 }
+
+export async function getProductCategoryDistribution(email: string) {
+  try {
+    if (!email) {
+      throw new Error("l'email est requis .");
+    }
+
+    const association = await getAssociation(email);
+    if (!association) {
+      throw new Error("Aucune association trouvée avec cet email.");
+    }
+
+    const R = 5;
+
+    const categoriesWithProductCount = await prisma.category.findMany({
+      where: {
+        associationId: association.id,
+      },
+      include: {
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+
+    const data = categoriesWithProductCount
+      .map((category) => ({
+        name: category.name,
+        value: category.products.length,
+      }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, R);
+
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
