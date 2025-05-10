@@ -1,9 +1,15 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/rules-of-hooks */
 "use client";
 import { Product, Transaction } from "@/type";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import Wrapper from "../components/Wrapper";
 import { getTransactions, readProducts } from "../actions";
+import EmptyState from "../components/EmptyState";
+import TransactionComponent from "../components/TransactionComponent";
+
+const ITEMS_PER_PAGE = 5;
 
 const page = () => {
   const { user } = useUser();
@@ -13,6 +19,10 @@ const page = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
+  const [filteredTransactions, setFilteredTransactions] = useState<
+    Transaction[]
+  >([]);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   const fetchData = async () => {
     try {
@@ -35,11 +45,39 @@ const page = () => {
     if (email) fetchData();
   }, [email]);
 
+  useEffect(() => {
+    let filtered = transactions;
+
+    if (selectedProduct) {
+      filtered = filtered.filter((tx) => tx.productId === selectedProduct.id);
+    }
+    if (dateFrom) {
+      filtered = filtered.filter(
+        (tx) => new Date(tx.createdAt) >= new Date(dateFrom)
+      );
+    }
+    if (dateTo) {
+      filtered = filtered.filter(
+        (tx) => new Date(tx.createdAt) <= new Date(dateTo)
+      );
+    }
+
+    setFilteredTransactions(filtered);
+    setCurrentPage(1);
+  }, [selectedProduct, dateFrom, dateTo, transactions]);
+
+  const totalPages = Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentTransactions = filteredTransactions.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
+
   return (
     <Wrapper>
       <div className="flex justify-between item-center flex-wrap gap-4">
         <div className="flex md:justify-between w-full mb-4 space-x-2 md:space-x-0">
-          <div className="">
+          <div>
             <select
               className="select select-bordered md:w-64"
               value={selectedProduct?.id || ""}
@@ -84,6 +122,40 @@ const page = () => {
             />
           </div>
         </div>
+
+        {transactions.length == 0 ? (
+          <EmptyState
+            message="Aucune transaction pour le moment"
+            IconComponent="CaptionsOff"
+          />
+        ) : (
+          <div className="space-y-4 w-full">
+            {currentTransactions.map((tx) => (
+              <TransactionComponent key={tx.id} tx={tx} />
+            ))}
+          </div>
+        )}
+
+        {filteredTransactions.length > ITEMS_PER_PAGE && (
+          <div className="join">
+            <button
+              className="join-item btn"
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              «
+            </button>
+            <button className="join-item btn">{currentPage}</button>
+
+            <button
+              className="join-item btn"
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              »
+            </button>
+          </div>
+        )}
       </div>
     </Wrapper>
   );
