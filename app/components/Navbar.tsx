@@ -4,6 +4,7 @@ import {
   ListTree,
   Menu,
   PackagePlus,
+  Receipt,
   ShoppingBasket,
   Warehouse,
   X,
@@ -25,6 +26,7 @@ const Navbar = () => {
     { href: "/new-product", label: "Nouveau produit", icon: PackagePlus },
     { href: "/category", label: "Catégories", icon: ListTree },
     { href: "/give", label: "Dons", icon: HandHeart },
+    { href: "/transactions", label: "Transactions", icon: Receipt },
   ];
 
   useEffect(() => {
