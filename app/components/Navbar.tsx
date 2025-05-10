@@ -1,6 +1,7 @@
 import { UserButton, useUser } from "@clerk/nextjs";
 import {
   HandHeart,
+  LayoutDashboard,
   ListTree,
   Menu,
   PackagePlus,
@@ -22,6 +23,7 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
+    { href: "/", label: "Tableau de Bord", icon: LayoutDashboard },
     { href: "/products", label: "Produits", icon: ShoppingBasket },
     { href: "/new-product", label: "Nouveau produit", icon: PackagePlus },
     { href: "/category", label: "Catégories", icon: ListTree },

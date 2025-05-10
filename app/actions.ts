@@ -1,7 +1,13 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { FormDataType, OrderItem, Product, Transaction } from "@/type";
+import {
+  FormDataType,
+  OrderItem,
+  Product,
+  ProductOverviewStats,
+  Transaction,
+} from "@/type";
 import { Category } from "@prisma/client";
 
 export async function checkAndAddAssociation(email: string, name: string) {
@@ -442,5 +448,64 @@ export async function getTransactions(
   } catch (error) {
     console.error(error);
     return [];
+  }
+}
+
+export async function getProductOverviewStats(
+  email: string
+): Promise<ProductOverviewStats> {
+  try {
+    if (!email) {
+      throw new Error("L'email est requis.");
+    }
+
+    const association = await getAssociation(email);
+    if (!association) {
+      throw new Error(" Aucune association trouvée avec cet email.");
+    }
+
+    const products = await prisma.product.findMany({
+      where: {
+        associationId: association.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      include: {
+        category: true,
+      },
+    });
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        associationId: association.id,
+      },
+    });
+
+    const categoriesSet = new Set(
+      products.map((product) => product.category?.name)
+    );
+
+    const totalProducts = products.length;
+    const totalCategories = categoriesSet.size;
+    const totalTransactions = transactions.length;
+    const stockValue = products.reduce((acc, product) => {
+      return acc + product.price * product.quantity;
+    }, 0);
+
+    return {
+      totalProducts,
+      totalCategories,
+      totalTransactions,
+      stockValue,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      totalProducts: 0,
+      totalCategories: 0,
+      totalTransactions: 0,
+      stockValue: 0,
+    };
   }
 }
