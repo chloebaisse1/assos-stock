@@ -8,6 +8,7 @@ import Wrapper from "../components/Wrapper";
 import { getTransactions, readProducts } from "../actions";
 import EmptyState from "../components/EmptyState";
 import TransactionComponent from "../components/TransactionComponent";
+import { RotateCcw } from "lucide-react";
 
 const ITEMS_PER_PAGE = 5;
 
@@ -120,6 +121,17 @@ const page = () => {
               }}
               onChange={(e) => setDateTo(e.target.value)}
             />
+
+            <button
+              className="btn btn-primary"
+              onClick={() => {
+                setSelectedProduct(null);
+                setDateFrom("");
+                setDateTo("");
+              }}
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
