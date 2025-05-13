@@ -28,9 +28,7 @@ const page = () => {
   const [editingCategoryId, setEditingCategoryId] = useState<string | null>(
     null
   );
-  const [categories, setCategories] = useState<Category[] | undefined>(
-    undefined
-  );
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const loadCategories = async () => {
     if (email) {
