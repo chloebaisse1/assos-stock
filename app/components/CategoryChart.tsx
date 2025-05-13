@@ -17,7 +17,7 @@ const CategoryChart = ({ email }: { email: string }) => {
   const [data, setData] = useState<ChartData[]>([]);
 
   const COLORS = {
-    default: "#c892bf",
+    default: "#C892BF",
   };
 
   const fetchStats = async () => {
@@ -55,23 +55,27 @@ const CategoryChart = ({ email }: { email: string }) => {
           tickLine={false}
           tick={{
             fontSize: 15,
-            fill: "oklch(62.45% .278 3.836)",
+            fill: "#000000",
             fontWeight: "bold",
           }}
         />
         <YAxis hide />
-        <Bar dataKey="value" barSize={200} radius={[8, 8, 0, 0]} />
+        <Bar dataKey="value" barSize={200} radius={[8, 8, 0, 0]}>
+          <LabelList
+            fill="#000000"
+            dataKey="value"
+            position="insideRight"
+            style={{ fontSize: "20px", fontWeight: "bold" }}
+          />
 
-        <LabelList
-          fill="#793205"
-          dataKey="value"
-          position="insideRight"
-          style={{ fontSize: "20px", fontWeight: "bold" }}
-        />
-
-        {data.map((entry, index) => (
-          <Cell key={`cell-${index}`} fill={COLORS.default} cursor="default" />
-        ))}
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={COLORS.default}
+              cursor="default"
+            />
+          ))}
+        </Bar>
       </BarChart>
     </ResponsiveContainer>
   );
@@ -79,19 +83,21 @@ const CategoryChart = ({ email }: { email: string }) => {
   if (data.length == 0) {
     return (
       <div className="w-full border-2 border-base-200 mt-4 p-4 rounded-3xl">
-        <h2 className="5 catégories avec le plus de produits">
-          <EmptyState
-            message="Aucune catégorie pour le moment"
-            IconComponent="Group"
-          />
+        <h2 className="text-xl font-bold mb-4">
+          {" "}
+          5 catégories avec le plus de produits
         </h2>
+        <EmptyState
+          message="Aucune catégorie pour le moment"
+          IconComponent="Group"
+        />
       </div>
     );
   }
-
   return (
     <div className="w-full border-2 border-base-200 mt-4 p-4 rounded-3xl">
-      <h2 className="5 catégories avec le plus de produits">{renderChart()}</h2>
+      <h2 className="text-xl font-bold mb-4">Catégories populaires</h2>
+      {renderChart()}
     </div>
   );
 };

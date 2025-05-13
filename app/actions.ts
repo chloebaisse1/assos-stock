@@ -6,6 +6,7 @@ import {
   OrderItem,
   Product,
   ProductOverviewStats,
+  StockSummary,
   Transaction,
 } from "@/type";
 import { Category } from "@prisma/client";
@@ -547,5 +548,51 @@ export async function getProductCategoryDistribution(email: string) {
     return data;
   } catch (error) {
     console.error(error);
+  }
+}
+
+export async function getStockSummary(email: string): Promise<StockSummary> {
+  try {
+    if (!email) {
+      throw new Error("l'email est requis .");
+    }
+
+    const association = await getAssociation(email);
+    if (!association) {
+      throw new Error("Aucune association trouvée avec cet email.");
+    }
+
+    const allProducts = await prisma.product.findMany({
+      where: {
+        associationId: association.id,
+      },
+      include: {
+        category: true,
+      },
+    });
+
+    const inStock = allProducts.filter((p) => p.quantity > 5);
+    const lowStock = allProducts.filter(
+      (p) => p.quantity > 0 && p.quantity <= 2
+    );
+    const outOfStock = allProducts.filter((p) => p.quantity === 0);
+    const criticalProduct = [...lowStock, ...outOfStock];
+    return {
+      inStockCount: inStock.length,
+      lowStockCount: lowStock.length,
+      outOfStockCount: outOfStock.length,
+      criticalProducts: criticalProduct.map((p) => ({
+        ...p,
+        categoryName: p.category?.name,
+      })),
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      inStockCount: 0,
+      lowStockCount: 0,
+      outOfStockCount: 0,
+      criticalProducts: [],
+    };
   }
 }
